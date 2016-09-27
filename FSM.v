@@ -101,7 +101,11 @@ MDRsel
 				//LDIND
 				c3_ldind: state = c4_ldind;
 				c4_ldind: state = c5_ldind;
-				c5_ldind: state = c1; //reset
+				c3_ldind: state = c4_ldind;
+				c4_ldind: state = c5_ldind;
+				c5_ldind: state = c6_ldind;
+				c6_ldind: state = c7_ldind;
+				c7_ldind: state = c1; //reset
 			endcase
 		end
 	end
@@ -576,6 +580,7 @@ MDRsel
 //					RegIn = 0;
 //					FlagWrite = 0;			
 //			end
+			//LDIND
 			c3_ldind: //read 1st
 			begin
 					PCwrite = 0;
@@ -616,12 +621,32 @@ MDRsel
 					FlagWrite = 0;
 					MDRsel =1; //still let OPA/R1 go through			
 			
-			end			
-		
-		c5_ldind: //go to R1
+			end
+			c5_ldind: //read 2nd
 			begin
 					PCwrite = 0;
-					AddrSel = 0;
+					AddrSel = 0; 
+					MemRead = 1;//OPA read
+					MemWrite = 0;
+					IRload = 0;
+					OpASel = 0; 
+					MDRload = 1;
+					OpABLoad = 0;
+					ALU1 = 0;
+					ALU2 = 3'b000;
+					ALUop = 3'b000;
+					ALUOutWrite = 0;
+					RFWrite = 0;
+					RegIn = 0;
+					FlagWrite = 0;
+					MDRsel =1; //still let OPA/R1 go through			
+			
+			end						
+		
+			c6_ldind: //go to R1
+			begin
+					PCwrite = 0;
+					AddrSel = 1; //read into 
 					MemRead = 0;
 					MemWrite = 0;
 					IRload = 0;
@@ -638,6 +663,29 @@ MDRsel
 					MDRsel =0; //still let OPA/R1 go through			
 			
 			end
+
+			c7_ldind: //go to R1
+			begin
+					PCwrite = 0;
+					AddrSel = 0; //read into 
+					MemRead = 1;
+					MemWrite = 0;
+					IRload = 0;
+					OpASel = 1;
+					MDRload = 0;
+					OpABLoad = 0;
+					ALU1 = 0;
+					ALU2 = 3'b000;
+					ALUop = 3'b000;
+					ALUOutWrite = 0;
+					RFWrite = 1;
+					RegIn = 1;
+					FlagWrite = 0;
+					MDRsel =0; //still let OPA/R1 go through			
+			
+			end
+
+
 			default:	//control = 19'b0000000000000000000;
 				begin
 					PCwrite = 0;
